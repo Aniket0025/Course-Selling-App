@@ -5,10 +5,10 @@
 const { Router } = require("express");
 const { UserModel } = require("../db")
 const jwt = require("jsonwebtoken");
-const JWT_USER_PASSWORD = "aniketaudumbaryadav"
 
 const bcrypt = require("bcrypt");
 const { model } = require("mongoose");
+const { JWT_USER_PASSWORD } = require("../config");
 
 
 const userRouter = Router();
