@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 console.log("Connected to DB");
-mongoose.connect("mongodb://127.0.0.1:27017/SellingApp")
+require("dotenv").config();
+mongoose.connect(process.env.MONGODB_URI)
 const Schema =  mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
@@ -17,8 +18,8 @@ const AdminSchema = new Schema({
 
     email:{type: String, unique: true},
     password:String,
-    firstname:String,
-    lastname:String
+    firstName:String,
+    lastName:String
 })
 
 const CourseSchema = new Schema({

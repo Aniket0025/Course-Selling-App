@@ -8,6 +8,10 @@ const userRouter = Router();
 const {UserModel} = require("../db")
 
 userRouter.post("/signup",function(req,res) {
+    const email = req.body.email;
+    const password = req.body.password;
+    const firstName= req.body.firstName;
+    const lastName= req.body.lastName;
 
     res.json({
         message:"Signup endpoint"
@@ -16,6 +20,8 @@ userRouter.post("/signup",function(req,res) {
 })
 
 userRouter.post("/signin",function(req,res) {
+    const email = req.body.email;
+    const password = req.body.password;
     
     res.json({
         message:"Signin endpoint"
