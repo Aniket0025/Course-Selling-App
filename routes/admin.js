@@ -1,47 +1,97 @@
-const {Router} = require("express");
+const { Router } = require("express");
 const adminRouter = Router();
-const {AdminModel} = require("../db")
+const { AdminModel } = require("../db")
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const JWT_ADMIN_PASSWORD = "passwordforadmin"
+
 
 
 //adminRouter.use(adminMiddleware);
 
-adminRouter.post("/signup",function(req,res) {
-    const email = req.body.email;
-    const password = req.body.password;
-    const firstName= req.body.firstName;
-    const lastName= req.body.lastName;
+
+adminRouter.post("/signup", async function (req, res) {
+    const { email, password, firstName, lastName } = req.body;
+    try {
+
+        const hashpassword = await bcrypt.hash(password, 5);
+
+        await AdminModel.create({
+            email: email,
+            password: hashpassword,
+            firstName: firstName,
+            lastName: lastName
+        })
+        res.json({
+            message: "Signup succeded"
+        })
+    }
+    catch (e) {
+        res.json({
+            message: "Signup failed"
+        })
+    }
+})
+
+adminRouter.post("/signin", async function (req, res) {
+    try {
+        const { email, password } = req.body;
+
+        const admin = await AdminModel.findOne({
+            email: email
+        });
+
+        //for email
+        if (!admin) {
+            return res.status(403).json({
+                message: "User not found"
+            });
+        }
+
+        //for bcrypt password compare
+
+        const isMatch = await bcrypt.compare(password, admin.password);
+        if (!isMatch) {
+            return res.status(403).json({
+                message: "password was wrong"
+            });
+        }
+
+        const token = jwt.sign({
+            id: admin.id
+        }, JWT_ADMIN_PASSWORD);
+
+        res.json({
+            message: "Login Successfull",
+            token: token
+        })
+
+    }
+    catch (e) {
+        res.json({
+            message: "Signin failed"
+        })
+    }
+})
+
+adminRouter.post("/course", function (req, res) {
     res.json({
-        message:"Signup endpoint"
+        message: "Signin endpoint"
     })
 })
 
-adminRouter.post("/signin",function(req,res) { 
-    const email = req.body.email;
-    const password = req.body.password;
-    
+adminRouter.put("/course", function (req, res) {
     res.json({
-        message:"Signin endpoint"
-    })    
+        message: "Signin endpoint"
+    })
 })
 
-adminRouter.post("/course",function(req,res) {    
+adminRouter.get("/course/bulk", function (req, res) {
     res.json({
-        message:"Signin endpoint"
-    })    
-})
-
-adminRouter.put("/course",function(req,res) {    
-    res.json({
-        message:"Signin endpoint"
-    })    
-})
-
-adminRouter.get("/course/bulk",function(req,res) {    
-    res.json({
-        message:"Signin endpoint"
-    })    
+        message: "Signin endpoint"
+    })
 })
 
 module.exports = {
-    adminRouter:adminRouter
+    adminRouter: adminRouter
 }
