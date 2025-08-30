@@ -3,12 +3,14 @@
 // const Router = express.Router;
 
 const { Router } = require("express");
-const { UserModel } = require("../db")
+const { UserModel, PurchasesModel } = require("../db")
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
 const { model } = require("mongoose");
 const { JWT_USER_PASSWORD } = require("../config");
+const { userMiddleware } = require("../middleware/user");
+
 
 
 const userRouter = Router();
@@ -85,13 +87,25 @@ userRouter.post("/signin", async function (req, res) {
     }
 })
 
-userRouter.get("/purchases", function (req, res) {
+userRouter.get("/purchases", userMiddleware, async function (req, res) {
+    const userId = req.userId;
 
-    res.json({
-        message: "purchases endpoint"
-    })
+    try {
+        const purchases = await PurchasesModel.find({
+            userId
+        }); // get all purchases for the user
 
-})
+        res.json({
+            purchases // will be [] if none exist
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to fetch purchases",
+            error: err.message
+        });
+    }
+});
+
 
 
 

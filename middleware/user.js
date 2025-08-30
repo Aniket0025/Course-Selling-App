@@ -3,20 +3,24 @@ const { JWT_USER_PASSWORD } = require("../config");
 
 function userMiddleware(req, res, next) {
     const token = req.headers.token;
-    const decoded = jwt.verify(token, JWT_USER_PASSWORD);
 
-    if (decoded) {
-        req.userId = decoded.Id;
-        next()
+    if (!token) {
+        return res.status(403).json({
+            message: "Token not provided"
+        });
     }
-    else {
+
+    try {
+        const decoded = jwt.verify(token, JWT_USER_PASSWORD);
+        req.userId = decoded.id; // lowercase 'id'
+        next();
+    } catch (err) {
         res.status(403).json({
-            message: "You are not Signed in"
-        })
+            message: "Invalid or expired token"
+        });
     }
-
 }
 
 module.exports = {
-    userMiddleware: userMiddleware
-}
+    userMiddleware
+};
